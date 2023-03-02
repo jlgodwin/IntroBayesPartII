@@ -1,0 +1,345 @@
+---
+title: "Intro to Bayesian Statistics: Inference"
+subtitle: "CSDE Workshop"
+author: "Jessica Godwin"
+date: "March 2, 2023"
+output: 
+  beamer_presentation:
+    theme: "Singapore"
+    slide_level: 2
+    toc: true
+header-includes: 
+  - \addtobeamertemplate{title page}{\includegraphics[width=1.5cm]{../Figures/W-Logo_Purple_RGB} \hfill \includegraphics[width=1.5cm]{../Figures/csdelogo}}{}
+classoption: "aspectratio=169"
+urlcolor: blue
+linkcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+
+# Resources and Support
+
+\textbf{Texts}
+
+\begin{itemize}
+\item Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A. \& Rubin, D. B. (2013). Bayesian Data Analysis, 3rd ed. Chapman and Hall/CRC.
+
+\item McElreath, R. (2020). Statistical Rethinking: A Bayesian Course with Examples in R and Stan, 2nd ed. Chapman and Hall/CRC.
+
+\item Casella, G., \& Berger, R. L. (2002). Statistical Inference, 2nd ed. Cengage Learning.
+\end{itemize}
+
+# What is Bayesian inference?
+
+## 3 Steps of Bayesian data analysis
+
+According to Gelman et al. (2013), there are three steps to Bayesian data analysis:
+\begin{enumerate}
+\item Setting up a \textbf{full probability model}.
+\begin{itemize}
+\item Specify joint probability distribution for all observable ($y$)and unobservable quantities ($\theta$).
+\end{itemize}
+
+\item Conditioning on observed data, then calculating \& interpreting the \textbf{posterior distribution}.
+\item Evaluating the fit of the model.
+\begin{itemize}
+\item How well does the model fit the data?
+\item Are the substantive conclusions reasonable?
+\item How sensitive are the results to modeling assumptions in Step 1?
+\end{itemize}
+\end{enumerate}
+
+## Step 1: Specifying a full probability model.
+
+Suppose we have observations $y_i$, $i = 1, \dots, n$ and we assume:
+
+\begin{itemize}
+\item they come from some probability distribution with parameters $\theta$, i.e. specify the \textbf{likelihood} $p(\mathbf{y}\vert \theta)$, and
+\item assume a priori what values of $\theta$ might be plausible, i.e. specify the \textbf{prior} $p(\theta)$.
+\end{itemize}
+
+Then, we can either perform:
+
+\begin{itemize}
+\item \textbf{Bayesian inference}, i.e. learn something about $\theta$ from our observed data, or
+\item \textbf{Bayesian prediction}, i.e. learn something about unobserved (but potentially observable) data, $\tilde{y}$, from our observed data.
+\end{itemize}
+
+## Step 2: Inference
+
+After specifying our full probability model, i.e. the likelihood and the prior, we can calculate the \textbf{posterior distribution} of $\theta$, $p(\theta \vert y)$:
+
+$$ \underbrace{p(\theta | y)}_\text{posterior distribution} = \dfrac{\overbrace{p(\theta, y)}^\text{sampling distribution}}{\underbrace{p(y)}_\text{prior predictive distribution}} =  \dfrac{\overbrace{p(y | \theta)}^\text{likelihood} \overbrace{p(\theta)}^\text{prior}}{\underbrace{ \int_{\theta} p(y \vert \theta)p(\theta)d\theta }_\text{marginal distribution}}.$$
+
+\begin{itemize}
+\item \textbf{Point estimates:} posterior mean, median or mode
+\item \textbf{Uncertainty:} posterior standard deviation or interquartile range, posterior intervals, or highest density posterior intervals
+\item \textbf{Both:} full posterior distribution (histograms,  densities, contour plots)
+\end{itemize}
+
+
+
+
+## Step 2: Prediction
+
+After specifying our full probability model, i.e. the likelihood and the prior, we can calculate the \textbf{posterior predictive distribution distribution} of $\tilde{y}$, $p(\tilde{y} \vert y)$ with some tricks from conditional probability:
+
+$$ \underbrace{p(\theta | y)}_\text{posterior predictive distribution} = \int_{\theta} p(\tilde{y}, \theta \vert y)d\theta = \int_{\theta} p(\tilde{y} \vert \theta, y) \overbrace{p(\theta \vert y)}^\text{posterior} d\theta = \int_{\theta} p(\tilde{y} \vert \theta) \overbrace{p(\theta \vert y)}^\text{posterior} d\theta.$$
+
+\begin{itemize}
+\item \textbf{Point estimates:} posterior predictive mean, median or mode
+\item \textbf{Uncertainty:} posterior predictive standard deviation or interquartile range, posterior predictive intervals, or highest density posterior predictive intervals
+\item \textbf{Both:} full posterior predictive distribution (histograms,  densities, contour plots)
+\end{itemize}
+
+## Step 2: Computing the marginal distribution
+Calculating $p(y) = \int_{\theta} p(y\vert \theta)p(\theta)d\theta$ can be difficult.\par
+\vspace{0.25in}
+
+\textbf{Possibile Methods:}
+\begin{itemize}
+\item Calculate it analytically (often not easy or possible)
+\begin{itemize}
+\item Choosing conjugate likelihood-prior pairs leads to a known, closed-form posterior.
+\end{itemize}
+
+\item Approximate the posterior distribution
+\begin{itemize}
+\item Examples: grid approximation, quadratic or Normal approximation, Laplace approximation (INLA, TMB)
+\end{itemize}
+
+\item Sampling from the posterior distribution
+\begin{itemize}
+\item Markov Chain Monte Carlo (WinBUGS, JAGS)-- Gibbs sampling \& Metropolis-Hastings, Hamiltonian Monte Carlo (Stan)
+\end{itemize}
+\end{itemize}
+
+# Inference: Conjugate Priors
+
+## Conjugacy
+
+\begin{itemize}
+\item The property that the posterior distribution follows the same parametric form as the prior distribution is called \textbf{conjugacy}.
+\item The prior and posterior distributions that have this property with a particular likelihood are called a \textbf{conjugate family} to the likelihood.
+\end{itemize}
+
+\textbf{Examples of conjugate families:}
+\begin{table}
+\centering
+\begin{tabular}{c|c}
+\hline
+\textbf{Likelihood} & \textbf{Conjugate family} \\
+\hline \hline
+Binomial & Beta \\
+Multinomial & Dirichlet\\
+Poisson & Gamma \\ \hline
+Exponential & Gamma \\
+Normal (mean) & Normal \\ 
+Normal (mean, variance) & Normal, Inverse Gamma \\ \hline
+\end{tabular}
+\end{table}
+
+## The Beta-Binomial Model
+
+\begin{itemize}
+\item \textbf{Likelihood:} Let $X_1, \dots, X_n$ be iid Bernoulli$(p)$, so that $Y = \sum_{i=1}^n X_i \sim \mbox{Binomial}(n, p)$.
+\item \textbf{Prior:} If we assume $p \sim \mbox{Beta}(\alpha, \beta)$,
+\item \textbf{Posterior:} what is the distribution of $p|y, n$?
+\end{itemize}
+
+\begin{align*}
+p|y,n &\sim \mbox{Beta}(\alpha + y, \beta + n - y)\\
+p(p|y,n) &= \dfrac{\Gamma(\alpha + \beta + n)}{\Gamma(\alpha + y)\Gamma(\beta + n - y)}p^{\alpha + y -1}(1-p)^{\beta + n - y -1}\\
+E[p|y,n] &= \dfrac{\alpha + y}{\alpha + y + \beta + n - y} = \dfrac{\alpha + y}{\alpha + \beta + n}\\
+Var(p|y,n) &= \dfrac{(\alpha + y)(\beta + n - y)}{(\alpha + \beta + n)^2(\alpha + \beta + n + 1)}\\
+\end{align*}
+
+## The Beta-Binomial Model: An Example
+
+Suppose we sample $n = 100$ individuals from a population in an attempt to estimate the \textbf{support ratio}, or ratio of individuals who are 15-64 to those who are 65+. Let $y$ be a binary outcome indicating an individual is 65+.
+
+```{r, echo = FALSE, results = 'asis'}
+library(dplyr)
+library(xtable)
+set.seed(202303)
+n <- 100
+age_groups <- c("0-14", "15-64", "65+")
+data <- data.frame(ID = 1:n,
+                   Age = age_groups[sample(1:3, size = 100,
+                                           replace = TRUE,
+                                           prob = c(0.182, 0.65,
+                                                    0.168))])
+to_print <- data %>% group_by(Age) %>% 
+  summarise(N = n()) %>% 
+  ungroup() %>% 
+  mutate(y = ifelse(Age == "65+", 1,
+                    ifelse(Age == "15-64", 0, NA))) %>% 
+  xtable(., align = "cc|cc", digits = c(0, 0, 0, 0))
+
+print.xtable(to_print, comment = FALSE, include.rownames = FALSE)
+```
+
+\textbf{Step 1:} Specify \textbf{binomial likelihood} for $y$,
+$$p(y = 15 \vert p, n = 87) = \left(\begin{array}{c} 87 \\ 15 \end{array} \right) p^{15}(1 - p)^{87},$$ and specify a \textbf{Beta($\alpha = $2,$\beta = $2) prior} for $p$, $$p(p) = \dfrac{\Gamma(4)}{\Gamma(2)\Gamma(2)}p^{2-1}(1-p)^{2-1}.$$
+
+
+## The Beta-Binomial Model: An Example
+
+\textbf{Step 2:} Calculate the \textbf{Beta($\alpha + y$, $\beta + n - y$) posterior distribution} for $p$,
+
+$$p(p \vert y, n) = \dfrac{\Gamma(4 + 87)}{\Gamma(2 + 15)\Gamma(2 + 72)}p^{2 + 15 -1}(1-p)^{2-1}.$$
+
+\textbf{Step 2, cont'd:} Make inference about $p$.
+$$ E[p|y = 15,n = 87, \alpha = 2, \beta = 2] = \dfrac{\alpha + y}{\alpha + \beta + n} = \dfrac{17}{2 + 2 + 87} = 0.187$$
+$$\sqrt{Var(p|y,n)} = \sqrt{\dfrac{(\alpha + y)(\beta + n - y)}{(\alpha + \beta + n)^2(\alpha + \beta + n + 1)}} = \sqrt{\dfrac{17\times 74}{91^2\times 92}} = 0.041.$$
+
+
+## The Beta-Binomial Model: An Example
+
+\textbf{Step 2, cont'd:} Make inference about $p$.
+$$p|y = 15, n = 87, \alpha = 2, \beta = 2 \sim \mbox{Beta}(17, 74)$$
+$$ E[p|y = 15,n = 87, \alpha = 2, \beta = 2] = \dfrac{17}{91} = 0.187 \mbox{  }
+\sqrt{Var(p|y,n)} = \sqrt{\dfrac{17\times 74}{91^2\times 92}} = 0.041.$$
+
+The posterior mean proportion of individuals aged 15 or older who are 65+ is 0.187 (0.041).
+
+```{r, echo = TRUE}
+qbeta(c(0.025, 0.975), shape1 = 17, shape2 = 74)
+```
+
+The 95\% posterior (or credible) interval for the proportion of individuals age 15 or older who are 65+ is (.114, .273).
+
+
+
+## The Beta-Binomial Model: An Example
+
+\textbf{Step 2, cont'd:} Make inference about $p$ using $p|y \sim \mbox{Beta}(17, 74)$
+```{r, echo = TRUE, fig.height = 3, fig.width = 4, fig.align = "center"}
+post_prob <- rbeta(n = 1000, shape1 = 17, shape2 = 74)
+hist(post_prob, main = "", xlab = "Proportion Above 15 who are 65+",
+     border = FALSE, col = "navy", freq = FALSE)
+```
+
+## The Beta-Binomial Model: An Example
+
+\textbf{Step 2, cont'd:} Make inference about \textbf{the support ratio} using $p|y \sim \mbox{Beta}(17, 74)$
+```{r, echo = TRUE}
+support_ratio <- (1 - post_prob)/post_prob
+c(mean(support_ratio), sd(support_ratio))
+quantile(support_ratio, probs = c(0.025, 0.975))
+```
+
+The posterior mean of the support ratio is 4.64 (1.31) persons 15-64 for every person 65+. The 95\% posterior interval for the support ratio is (2.71, 7.93).
+
+
+# Inference: Grid Approximation
+
+One option for approximating the posterior distribution is \textbf{grid approximation}:
+
+\begin{enumerate}
+\item Specify the likelihood ($p(y|\theta)$) and prior distributions ($p(\theta)$).
+\item Pick $S$ values of $\theta$ that span the support of the prior $p(\theta)$.
+\item Evaluate $p(\theta_s)$ and $p(y|\theta_s)$ for all $s = 1, \dots, S$.
+\item Calculate $p(y) = \sum_{s = 1}^S p(y|\theta_s)p(\theta_s)$.
+\item Evaluate the posterior $\dfrac{p(y|\theta_s)p(\theta_s)}{p(y)}$ for all $s = 1, \dots, S$.
+\item Use the $S$ values of the posterior to produce point estimates of $\theta$, quantify uncertainty about those estimates, or to approximate the posterior distribution as a whole.
+\end{enumerate}
+
+## Grid Approximation: An Example
+
+Let's return to our previous example estimating the proportion of individuals above 15 who are 65+ and using that to estimate the support ratio.
+
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\begin{align*}
+y | p, n = 87 &\sim \mbox{Bin}(n = 87, p)\\
+p &\sim \mbox{Beta(2,2)}
+\end{align*}
+\end{column}
+\begin{column}{0.45\textwidth}
+\includegraphics[scale = 0.8]{../Figures/Gamma22_Prior.pdf}
+\end{column}
+\end{columns}
+
+## Grid Approximation: An Example
+
+The support for the $\mbox{Beta}(2,2)$ distribution is (0,1).
+
+```{r, echo = TRUE}
+p_grid <- seq(0.001, 0.999, .001)
+prior_eval <- dbeta(p_grid, shape1 = 2, shape2 = 2)
+likelihood_eval <- dbinom(15, size = 87, prob = p_grid)
+marg_calc <- sum(likelihood_eval*prior_eval)
+post_eval <- (1/marg_calc)*likelihood_eval*prior_eval
+```
+
+```{r, echo = FALSE, fig.height = 3, fig.width = 3, fig.align="center"}
+y_lims <- round(c(min(c(prior_eval/10, likelihood_eval, post_eval)),
+                  max(c(prior_eval/10, likelihood_eval, post_eval))),
+                digits = 3)
+
+par(lend = 1)
+plot(p_grid, prior_eval/10,
+     xlab = "p", ylab = "Density",
+     xlim = c(0,1), ylim = y_lims,
+     lwd = 3, type = "l", col = "grey75")
+lines(p_grid, likelihood_eval,
+      lwd = 3, col = "navy")
+lines(p_grid, post_eval,
+      lwd = 3, col = "firebrick")
+legend("topright", bty = "n", lwd = 3, cex = .5,
+       col = c("grey75", "navy", "firebrick"),
+       legend = c("Prior", "Likelihood", "Posterior"))
+
+```
+
+
+## Grid Approximation: An Example
+
+At what value of $p$ does the posterior distribution attain its maximum?
+
+```{r, echo = TRUE}
+max_val_idx <- which.max(post_eval)
+p_grid[max_val_idx]
+```
+
+\begin{columns}
+\begin{column}{0.45\textwidth}
+The posterior mode proportion of individuals aged 15 or older who are 65+ is 0.18.
+\end{column}
+\begin{column}{0.45\textwidth}
+\includegraphics[scale = 0.8]{../Figures/Posterior_GridApprox_Mode.pdf}
+\end{column}
+\end{columns}
+
+
+## The Normal-Normal Model
+
+\begin{itemize}
+\item \textbf{Likelihood:} Let $Y_i \sim \mbox{Normal}(\mu, \sigma^2)$, for $i = 1, \dots, n$ where $\sigma^2$ is known.
+\item \textbf{Prior:} If we assume $\mu \sim \mbox{Normal}(\theta, \tau^2)$, where $\theta$ and $\tau^2$ are known values,
+\item \textbf{Posterior:} what is the distribution of $\mu|\mathbf{y}, \sigma^2, \theta, \tau^2$?
+\end{itemize}
+
+\begin{align*}
+\mu|\mathbf{y},\sigma^2, \theta, \tau^2 &\sim \mbox{Normal}\left(\bar{y} \times \dfrac{\tau^2}{\sigma^2/n + \tau^2} + \theta \times \dfrac{\sigma^2/n}{\sigma^2/n + \tau^2}, \dfrac{\tau^2\sigma^2/n}{\tau^2 + \sigma^2/n} \right)\\
+E[\mu|\mathbf{y},\sigma^2, \theta, \tau^2] &= \bar{y} \times \dfrac{\tau^2}{\sigma^2/n + \tau^2} + \theta \times \dfrac{\sigma^2/n}{\sigma^2/n + \tau^2}\\
+Var(\mu|\mathbf{y},\sigma^2, \theta, \tau^2) &= \dfrac{\tau^2\sigma^2/n}{\tau^2 + \sigma^2/n}
+\end{align*}
+
+\textbf{Question: What happens when $n \rightarrow \infty$?}
+
+## The Normal-Normal Model: Regression
+
+Let $Y_1, \dots, Y_n \stackrel{iid}{\sim} \mbox{Normal}(\beta_0 + \beta_1 X_i, \sigma^2)$, where $\sigma^2$ is known. If we assume $\beta \sim \mbox{Normal}(\theta, \Sigma_{\theta})$, where $\theta = [\begin{array}{cc}\theta_0 & \theta_1\end{array}]$ and $\Sigma_{\theta}$ are known values, what is the distribution of $\beta|y, \sigma^2, \theta, \Sigma_{\theta}$ where $\beta = [\begin{array}{cc}\beta_0 & \beta_1\end{array}]$?
+
+\begin{align*}
+P(\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma) &\sim \mbox{Normal} \left( \left[\Sigma_{\theta} + \dfrac{\sum_{i=1}^n x_i^2}{\sigma^2}\right]^{-1} \dfrac{\sum_{i=1}^n x_iy_i}{\sigma^2}, \left[\Sigma_{\theta} + \dfrac{\sum_{i=1}^n x_i^2}{\sigma^2}\right]^{-1}\right) \\
+P(\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma) &\sim \mbox{Normal} \left( \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\Sigma^{-1}\mathbf{x}^T\mathbf{y}, \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\right) \\
+E[\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma] &=  \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\Sigma^{-1}\mathbf{x}^T\mathbf{y} \\
+Var(\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma) &= \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\\
+\end{align*}
+
