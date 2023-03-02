@@ -32,8 +32,52 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 \item Casella, G., \& Berger, R. L. (2002). Statistical Inference, 2nd ed. Cengage Learning.
 \end{itemize}
 
-# What is Bayesian inference?
 
+# Review
+## Reviewing Bayes' (and Laplace's) Rule
+
+\begin{itemize}
+\item \textbf{Rules of conditional probability}
+$$ P(A \cap B) = P(A \vert B)P(B) = P(B \vert A)P(A)$$
+\item \textbf{Bayes' Rule}
+\begin{align*}
+P(A\vert B) = \dfrac{P(B \vert A) P(A)}{P(B)} & &
+P(B\vert A) = \dfrac{P(A \vert B)P(B)}{P(A)} \\ 
+\end{align*}
+\end{itemize}
+
+## Probability: Bayes' Rule - Testing Example
+A disease has a prevalence of 1\% in the population.  A blood test for the disease has high sensitivity (the probability of a positive test if someone is sick) and specificity (the probability of a negative test if someone is not sick).
+\begin{itemize}
+\item If someone has the disease, there is a 98\% chance they will test positive.
+\item If someone does not have the disease, there is a 95\% chance they will test negative
+\end{itemize}
+
+Suppose you test positive for the disease and you want to figure out the chance that you have the disease.  That is, given someone has tested positive for the disease what is the probability that they have the disease?
+
+\pause
+What do we know? \pause
+\begin{itemize}
+\item $P(+| D^+)=0.98 $, $P(- | D^+)=0.02 $ \pause
+\item $P(- | D^-)=0.95 $, $P(+|D^-)=0.05 $ \pause
+\item $P(D^+)=0.01 $, $P(D^-)=0.99 $ 
+\end{itemize}
+
+## Probabilty: Bayes' Rule - Testing Example
+\begin{itemize}
+\item $P(+| D^+)=0.98 $, $P(- | D^+)=0.02 $ 
+\item $P(- | D^-)=0.95 $, $P(+|D^-)=0.05 $ 
+\item $P(D^+)=0.01 $, $P(D^-)=0.99 $ 
+\end{itemize}
+
+\begin{eqnarray*}
+P(D^+|+)=\frac{P(+|D^+)P(D^+)}{P(+)}&=&\frac{P(+|D^+)P(D^+)}{P(+\cap D^+)+P(+\cap D^-)}\\
+&=&\frac{P(+|D^+)P(D^+)}{P(+| D^+)P(D^+)+P(+|D^-)P( D^-)}\\
+&=&\frac{0.98\cdot 0.01}{0.98\cdot 0.01+0.05\cdot 0.99}\\
+&=&0.165\\
+\end{eqnarray*}
+
+# What is Bayesian inference?
 ## 3 Steps of Bayesian data analysis
 
 According to Gelman et al. (2013), there are three steps to Bayesian data analysis:
@@ -87,7 +131,7 @@ $$ \underbrace{p(\theta | y)}_\text{posterior distribution} = \dfrac{\overbrace{
 
 After specifying our full probability model, i.e. the likelihood and the prior, we can calculate the \textbf{posterior predictive distribution distribution} of $\tilde{y}$, $p(\tilde{y} \vert y)$ with some tricks from conditional probability:
 
-$$ \underbrace{p(\theta | y)}_\text{posterior predictive distribution} = \int_{\theta} p(\tilde{y}, \theta \vert y)d\theta = \int_{\theta} p(\tilde{y} \vert \theta, y) \overbrace{p(\theta \vert y)}^\text{posterior} d\theta = \int_{\theta} p(\tilde{y} \vert \theta) \overbrace{p(\theta \vert y)}^\text{posterior} d\theta.$$
+$$ \underbrace{p(\tilde{y} | y)}_\text{posterior predictive distribution} = \int_{\theta} p(\tilde{y}, \theta \vert y)d\theta = \int_{\theta} p(\tilde{y} \vert \theta, y) \overbrace{p(\theta \vert y)}^\text{posterior} d\theta = \int_{\theta} p(\tilde{y} \vert \theta) \overbrace{p(\theta \vert y)}^\text{posterior} d\theta.$$
 
 \begin{itemize}
 \item \textbf{Point estimates:} posterior predictive mean, median or mode
@@ -210,8 +254,27 @@ The posterior mean proportion of individuals aged 15 or older who are 65+ is 0.1
 qbeta(c(0.025, 0.975), shape1 = 17, shape2 = 74)
 ```
 
-The 95\% posterior (or credible) interval for the proportion of individuals age 15 or older who are 65+ is (.114, .273).
+The 95\% posterior (or credible) interval for the proportion of individuals age 15 or older who are 65+ is (.114, .273). 
 
+## On Frequentist vs. Bayesian intervals
+
+\begin{itemize}
+\item Frequentist confidence intervals have the interpretation that, if one were to repeat the experiment that led to their observed data over and over again $(1-\alpha)\%$ of the time the confidence interval $$ \hat{\theta} \pm z_{1-\alpha/2}\times SE(\hat{\theta})$$ would contain the true parameter of interest, $\theta$.
+\begin{itemize}
+\item Any single frequentist CI is NOT a probability statement, the true parameter $\theta$ is either in that interval or not.
+\item However, people often WANT to interpret frequentist CIs the way a Bayesian interval CAN BE interpretted.
+\end{itemize}
+
+\item Bayesian intervals ARE probability statements with the interpretation that based on the model (prior and likelihood choice), there is a $(1-\alpha)\%$ chance $\theta$ lies in the interval.
+\end{itemize}
+
+
+## On Frequentist vs. Bayesian intervals
+
+\begin{itemize}
+\item Bayesian intervals ARE probability statements with the interpretation that based on the model (prior and likelihood choice), there is a $(1-\alpha)\%$ chance $\theta$ lies in the interval.
+\end{itemize}
+The 95\% posterior (or credible) interval for the proportion of individuals age 15 or older who are 65+ is (.114, .273), i.e. given our prior choice and observed data, there is a 95\% chance the true proportion of individuals 15 or older who are 65+ lies between (.114, .273).
 
 
 ## The Beta-Binomial Model: An Example
@@ -225,7 +288,21 @@ hist(post_prob, main = "", xlab = "Proportion Above 15 who are 65+",
 
 ## The Beta-Binomial Model: An Example
 
+\textbf{Step 2, cont'd:} Make inference about $p$ using $p|y \sim \mbox{Beta}(17, 74)$
+```{r, echo = TRUE, fig.height = 3, fig.width = 4, fig.align = "center"}
+sum(post_prob > 15/87)/length(post_prob)
+sum(post_prob > 0.25)/length(post_prob)
+```
+
+Based on our observed data and prior choice, there is a 60.5\% chance that the true proportion of individuals aged 15 or older who are 65+ is higher than what we observed.\par
+Based on our observed data and prior choice, there is a 7.1\% chance a quarter or more of the individuals 15+ are 65+.\par
+
+These are called \textbf{exceedance probabilities}.
+
+## The Beta-Binomial Model: An Example
+
 \textbf{Step 2, cont'd:} Make inference about \textbf{the support ratio} using $p|y \sim \mbox{Beta}(17, 74)$
+
 ```{r, echo = TRUE}
 support_ratio <- (1 - post_prob)/post_prob
 c(mean(support_ratio), sd(support_ratio))
@@ -234,6 +311,18 @@ quantile(support_ratio, probs = c(0.025, 0.975))
 
 The posterior mean of the support ratio is 4.64 (1.31) persons 15-64 for every person 65+. The 95\% posterior interval for the support ratio is (2.71, 7.93).
 
+
+
+## The Beta-Binomial Model: An Example
+
+\textbf{Step 2, cont'd:} Simulate predicted values from $p(\tilde{y} \vert y) = \int_{p} p(\tilde{y} \vert p, n) p(p \vert y, n) dp$:
+```{r, echo = TRUE}
+post_pred <- rbinom(1000, size = 87, prob = post_prob)
+c(mean(post_pred), sd(post_pred))
+quantile(post_pred, probs = c(0.025, 0.975))
+```
+
+The posterior predictive mean is is 16.14 (4.97) persons 65+ for every sample of $n = 87$ individuals 15 and above. The 95\% \textbf{posterior predictive interval} (7, 27).
 
 # Inference: Grid Approximation
 
@@ -315,31 +404,58 @@ The posterior mode proportion of individuals aged 15 or older who are 65+ is 0.1
 \end{column}
 \end{columns}
 
+## Grid Approximation: An Example
 
-## The Normal-Normal Model
+Posterior medians and intervals by sampling from the approximated posterior:
+
+```{r, echo = TRUE}
+post_samp_grid <- sample(p_grid, size = 1000, replace = TRUE,
+                         prob = post_eval)
+quantile(post_samp_grid, c(0.025, .5, 0.975))
+```
+The posterior median proportion of individuals 15+ who are 65+ is 0.184, and the 95\% posterior interval is (0.11, 0.27).
+
+## Comparison to the analytical posterior
+
+Let's compare our inference based on this grid approximation of the posterior to the inference based on the true posterior distribution we know via conjugacy.
+
+\begin{tabular}{c|c|cc}
+Measure & True Value & Samples & Grid Approx \\
+\hline \hline 
+Mean & 0.187 & 0.1858 & 0.1863\\
+Median & 0.1845 & 0.1841 & 0.1840 \\
+SD & 0.0406 & 0.0398 & 0.0421 \\
+95\% CI & (0.1140, 0.2726) & (0.1120, 0.2692) & (0.1110, 0.2721) \\
+$P(p \geq 0.25)$ & 0.0683 & 0.0710 & 0.075 \\
+\hline
+\end{tabular}
+
+
+## Comparison to the analytical posterior
+
+Let's compare our inference based on this grid approximation of the posterior to the inference based on the true posterior distribution we know via conjugacy.
+\vspace{-0.25in}
+\begin{figure}[!h]
+\centering
+\includegraphics{../Figures/Posterior_Compare.pdf}
+\end{figure}
+
+
+## Why quadratic approximation or MCMC?
 
 \begin{itemize}
-\item \textbf{Likelihood:} Let $Y_i \sim \mbox{Normal}(\mu, \sigma^2)$, for $i = 1, \dots, n$ where $\sigma^2$ is known.
-\item \textbf{Prior:} If we assume $\mu \sim \mbox{Normal}(\theta, \tau^2)$, where $\theta$ and $\tau^2$ are known values,
-\item \textbf{Posterior:} what is the distribution of $\mu|\mathbf{y}, \sigma^2, \theta, \tau^2$?
+\item As we have seen, grid approximation can provide a very good approximation to the posterior. So, why do we need to talk about other methods?
+\item Grid approximation becomes unwieldy as the number of parameters grow, we have only looked at a single parameter model so far.
+\item \textbf{Quadratic approximation} involves two steps:
+\begin{enumerate}
+\item Find posterior mode via optimization
+\item Calculate curvature (second derivative at peak)
+\end{enumerate}
+\begin{itemize}
+\item Quality of approximation increases as $n \rightarrow \infty$
+\item Often equal to the maximum likelihood estimate 
+\item Breaks if the Hessian (matrix of 2nd derivatives) can't be calculated
 \end{itemize}
-
-\begin{align*}
-\mu|\mathbf{y},\sigma^2, \theta, \tau^2 &\sim \mbox{Normal}\left(\bar{y} \times \dfrac{\tau^2}{\sigma^2/n + \tau^2} + \theta \times \dfrac{\sigma^2/n}{\sigma^2/n + \tau^2}, \dfrac{\tau^2\sigma^2/n}{\tau^2 + \sigma^2/n} \right)\\
-E[\mu|\mathbf{y},\sigma^2, \theta, \tau^2] &= \bar{y} \times \dfrac{\tau^2}{\sigma^2/n + \tau^2} + \theta \times \dfrac{\sigma^2/n}{\sigma^2/n + \tau^2}\\
-Var(\mu|\mathbf{y},\sigma^2, \theta, \tau^2) &= \dfrac{\tau^2\sigma^2/n}{\tau^2 + \sigma^2/n}
-\end{align*}
-
-\textbf{Question: What happens when $n \rightarrow \infty$?}
-
-## The Normal-Normal Model: Regression
-
-Let $Y_1, \dots, Y_n \stackrel{iid}{\sim} \mbox{Normal}(\beta_0 + \beta_1 X_i, \sigma^2)$, where $\sigma^2$ is known. If we assume $\beta \sim \mbox{Normal}(\theta, \Sigma_{\theta})$, where $\theta = [\begin{array}{cc}\theta_0 & \theta_1\end{array}]$ and $\Sigma_{\theta}$ are known values, what is the distribution of $\beta|y, \sigma^2, \theta, \Sigma_{\theta}$ where $\beta = [\begin{array}{cc}\beta_0 & \beta_1\end{array}]$?
-
-\begin{align*}
-P(\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma) &\sim \mbox{Normal} \left( \left[\Sigma_{\theta} + \dfrac{\sum_{i=1}^n x_i^2}{\sigma^2}\right]^{-1} \dfrac{\sum_{i=1}^n x_iy_i}{\sigma^2}, \left[\Sigma_{\theta} + \dfrac{\sum_{i=1}^n x_i^2}{\sigma^2}\right]^{-1}\right) \\
-P(\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma) &\sim \mbox{Normal} \left( \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\Sigma^{-1}\mathbf{x}^T\mathbf{y}, \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\right) \\
-E[\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma] &=  \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\Sigma^{-1}\mathbf{x}^T\mathbf{y} \\
-Var(\beta|\mathbf{y},\mathbf{x},\sigma^2, \theta, \Sigma) &= \left[\Sigma_{\theta} + \Sigma^{-1}\mathbf{x}^T\mathbf{x}\right]^{-1}\\
-\end{align*}
+\item \textbf{MCMC} is useful when quadratic approximation doesn't work or lots and lots of parameters
+\end{itemize}
 
